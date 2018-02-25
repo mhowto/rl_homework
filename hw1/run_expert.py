@@ -15,6 +15,7 @@ import numpy as np
 import tf_util
 import gym
 import load_policy
+import os
 
 def main():
     import argparse
@@ -67,6 +68,13 @@ def main():
 
         expert_data = {'observations': np.array(observations),
                        'actions': np.array(actions)}
+        save_expert_data(args.envname, expert_data)
+
+def save_expert_data(envname, expert_data):
+    if not os.path.exists('data'):
+        os.mkdir('data')
+    np.save(os.path.join('data', '{}_observations'.format(envname)), expert_data['observations'])
+    np.save(os.path.join('data', '{}_actions'.format(envname)), expert_data['actions'])
 
 if __name__ == '__main__':
     main()
