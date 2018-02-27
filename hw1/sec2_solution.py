@@ -2,12 +2,13 @@ from behaviour_cloning import *
 from gym_util import run_gym
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
-# envs = ['Hopper-v1', 'Ant-v1', 'HalfCheetah-v1', 'Humanoid-v1', 'Reacher-v1',  'Walker2d-v1']
-envs = ['Hopper-v1']
+import logging
 
-for env in envs:
-    print('training ' + env)
+logging.basicConfig(format='', filename='train.log', level=logging.DEBUG)
+
+def run_bc(env, epochs=100, num_rollouts=1):
     obs = np.load(os.path.join('data', '{}_observations.npy'.format(env)))
     actions = np.load(os.path.join('data', '{}_actions.npy'.format(env)))
     actions = np.squeeze(actions)
@@ -18,10 +19,16 @@ for env in envs:
         with tf.Session() as sess:
             sess.run(init)
             rewards = []
-            for e in range(100):
+            for e in tqdm(range(epochs), desc='env='+env):
                 nn.train(sess, obs, actions, epoch=1)
-                returns = run_gym(env, lambda x: nn.evaluate(sess, x))
+                returns = run_gym(env, lambda x: nn.evaluate(sess, x), num_rollouts=num_rollouts)
                 rewards.append(np.mean(returns))
-            print(rewards)
-            plt.plot(rewards)
-            plt.show()
+            rewards = np.array(rewards)
+            np.save(os.path.join('data', '{}_bc_rewards'.format(env)), rewards)
+
+
+def get_bc_rewards(env):
+    filepath = os.path.join('data', '{}_bc_rewards.npy'.format(env))
+    rewards = np.load(filepath)
+    x = np.arange(1, rewards.size + 1)
+    return {'x': x, 'y': rewards}
