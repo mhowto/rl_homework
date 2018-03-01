@@ -41,7 +41,7 @@ class BatchIterator(object):
             return self.data[indexs, ...]
 
 class SimpleNN(object):
-    def __init__(self, obs_size, action_size, learning_rate=0.01):
+    def __init__(self, obs_size, action_size, learning_rate=0.01, name='simple_nn'):
         '''
         observations = tf.squeeze(observations)
         actions = tf.squeeze(actions)
@@ -54,10 +54,10 @@ class SimpleNN(object):
         self.inputs_ = tf.placeholder(tf.float32, shape=[None, obs_size], name='inputs_')
         self.outputs_ = tf.placeholder(tf.float32, shape=[None, action_size], name='outputs_')
 
-        with tf.variable_scope('layer1'):
+        with tf.variable_scope(name + '-layer1'):
             self.l1_out = tf.layers.dense(self.inputs_, 64, activation=tf.nn.relu, name='l1_out')
 
-        with tf.variable_scope('layer2'):
+        with tf.variable_scope(name + '-layer2'):
             self.outputs = tf.layers.dense(self.l1_out, action_size, name='layer2')
         self.loss = tf.reduce_mean(tf.squared_difference(self.outputs, self.outputs_))
         self.optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(self.loss)

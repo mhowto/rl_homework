@@ -21,7 +21,7 @@ def run_bc(env, epochs=100, num_rollouts=1):
             rewards = []
             for e in tqdm(range(epochs), desc='env='+env):
                 nn.train(sess, obs, actions, epoch=1)
-                returns = run_gym(env, lambda x: nn.evaluate(sess, x), num_rollouts=num_rollouts)
+                returns, _, _ = run_gym(env, lambda x: nn.evaluate(sess, x), num_rollouts=num_rollouts)
                 rewards.append(np.mean(returns))
             rewards = np.array(rewards)
             np.save(os.path.join('data', '{}_bc_rewards'.format(env)), rewards)
